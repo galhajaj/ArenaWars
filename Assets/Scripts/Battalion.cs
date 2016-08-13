@@ -32,6 +32,8 @@ public class Battalion : MonoBehaviour
     public GameObject WaypointObject;
     private List<GameObject> _waypointsObjects = new List<GameObject>();
 
+    private GameObject _prey = null;
+
     readonly Color PURPLE_COLOR = new Color(1.0F, 0.0F, 1.0F);
 
     // =============================================================================================================== //
@@ -44,6 +46,10 @@ public class Battalion : MonoBehaviour
     {
         updateSize();
         updateColor();
+
+        updateFindPrey();
+        updateLostPrey();
+        updateChasePrey();
 
 	    // move towards stored waypoints and remove them while arrived
         if (_waypoints.Count > 0)
@@ -107,6 +113,36 @@ public class Battalion : MonoBehaviour
             this.GetComponent<SpriteRenderer>().color = PURPLE_COLOR;
     }
     // =============================================================================================================== //
+    private void updateFindPrey()
+    {
+        if (Aligment != ForceAligment.OPPOSING)
+            return;
+
+        if (_prey != null)
+            return;
+
+        _prey = findRandomPrey();
+    }
+    // =============================================================================================================== //
+    private void updateChasePrey()
+    {
+        if (_prey == null)
+            return;
+
+        transform.position = Vector3.MoveTowards(transform.position, _prey.transform.position, MoveSpeed * Time.deltaTime);
+    }
+    // =============================================================================================================== //
+    private void updateLostPrey()
+    {
+        if (_prey == null)
+            return;
+
+        float distanceToPrey = Vector3.Distance(_prey.transform.position, this.transform.position);
+        //Debug.Log(distanceToPrey);
+        if (distanceToPrey > 100.0F)
+            _prey = null;
+    }
+    // =============================================================================================================== //
     public void AddWaypoint(Vector3 waypoint)
     {
         _waypoints.Add(waypoint);
@@ -119,6 +155,24 @@ public class Battalion : MonoBehaviour
         foreach (GameObject obj in _waypointsObjects)
             Destroy(obj);
         _waypointsObjects.Clear();
+    }
+    // =============================================================================================================== //
+    private GameObject findRandomPrey()
+    {
+        List<GameObject> preys = new List<GameObject>();
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Battalion"))
+        {
+            if (obj.GetComponent<Battalion>().Aligment == ForceAligment.FRIENDLY)
+                preys.Add(obj);
+        }
+
+        if (preys.Count <= 0)
+            return null;
+
+        int rand = Random.Range(0, preys.Count);
+
+        return preys[rand];
     }
     // =============================================================================================================== //
 }
