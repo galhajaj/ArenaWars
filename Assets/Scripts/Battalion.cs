@@ -28,11 +28,9 @@ public class Battalion : MonoBehaviour
     public GameObject FrayObject;
 
     private List<Vector3> _waypoints = new List<Vector3>();
-    public List<Vector3> Waypoints
-    {
-        get { return _waypoints; }
-        set { _waypoints = value; }
-    }
+
+    public GameObject WaypointObject;
+    private List<GameObject> _waypointsObjects = new List<GameObject>();
 
     readonly Color PURPLE_COLOR = new Color(1.0F, 0.0F, 1.0F);
 
@@ -54,7 +52,11 @@ public class Battalion : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, targetPos, MoveSpeed * Time.deltaTime);
             // if close to waypoint remove it
             if (Vector3.Distance(targetPos, transform.position) <= 0.01F)
+            {
                 _waypoints.RemoveAt(0);
+                Destroy(_waypointsObjects[0]);
+                _waypointsObjects.RemoveAt(0);
+            }
         }
 	}
     // =============================================================================================================== //
@@ -71,12 +73,16 @@ public class Battalion : MonoBehaviour
 
         GameObject fray = Instantiate(FrayObject, other.transform.position, Quaternion.identity) as GameObject;
         fray.GetComponent<Fray>().Init(this.gameObject, other.gameObject);
+
         int mySign = (Aligment == ForceAligment.FRIENDLY) ? 1 : -1;
         int otherSign = (other.gameObject.GetComponent<Battalion>().Aligment == ForceAligment.FRIENDLY) ? 1 : -1;
         transform.position = new Vector3(mySign * 10000.0F, mySign * 10000.0F);
         other.transform.position = new Vector3(otherSign * 10000.0F, otherSign * 10000.0F);
 
         other.gameObject.GetComponent<Battalion>().IsCollided = true;
+
+        this.ClearWaypoints();
+        other.gameObject.GetComponent<Battalion>().ClearWaypoints();
     }
     // =============================================================================================================== //
     private void updateSize()
@@ -99,6 +105,20 @@ public class Battalion : MonoBehaviour
             this.GetComponent<SpriteRenderer>().color = Color.red;
         else
             this.GetComponent<SpriteRenderer>().color = PURPLE_COLOR;
+    }
+    // =============================================================================================================== //
+    public void AddWaypoint(Vector3 waypoint)
+    {
+        _waypoints.Add(waypoint);
+        _waypointsObjects.Add( Instantiate(WaypointObject, waypoint, Quaternion.identity) as GameObject );
+    }
+    // =============================================================================================================== //
+    public void ClearWaypoints()
+    {
+        _waypoints.Clear();
+        foreach (GameObject obj in _waypointsObjects)
+            Destroy(obj);
+        _waypointsObjects.Clear();
     }
     // =============================================================================================================== //
 }

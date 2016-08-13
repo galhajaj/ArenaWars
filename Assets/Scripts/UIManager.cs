@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
             _handledObject = findClosestObjectToMousePosition();
             if (_handledObject != null)
             {
-                _handledObject.GetComponent<Battalion>().Waypoints.Clear();
+                _handledObject.GetComponent<Battalion>().ClearWaypoints();
             }
         }
 
@@ -30,7 +30,8 @@ public class UIManager : MonoBehaviour
             Vector3 waypoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
             Vector3 waypointWorld = Camera.main.ScreenToWorldPoint(waypoint);
             waypointWorld.z = 0.0F;
-            _handledObject.GetComponent<Battalion>().Waypoints.Add(waypointWorld + _deltaOfClickFromObject);
+            //_handledObject.GetComponent<Battalion>().Waypoints.Add(waypointWorld + _deltaOfClickFromObject);
+            _handledObject.GetComponent<Battalion>().AddWaypoint(waypointWorld + _deltaOfClickFromObject);
         }
 
         // mouse release
@@ -50,6 +51,9 @@ public class UIManager : MonoBehaviour
         float closestDistance = 100000.0F;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Battalion"))
         {
+            if (obj.GetComponent<Battalion>() == null)
+                continue;
+
             if (obj.GetComponent<Battalion>().Aligment != ForceAligment.FRIENDLY)
                 continue;
 
