@@ -27,11 +27,14 @@ public class UIManager : MonoBehaviour
         // if handled not null, collect waypoints from mouse position
         if (_handledObject != null)
         {
-            Vector3 waypoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
-            Vector3 waypointWorld = Camera.main.ScreenToWorldPoint(waypoint);
-            waypointWorld.z = 0.0F;
-            //_handledObject.GetComponent<Battalion>().Waypoints.Add(waypointWorld + _deltaOfClickFromObject);
-            _handledObject.GetComponent<Battalion>().AddWaypoint(waypointWorld + _deltaOfClickFromObject);
+            if (!_handledObject.GetComponent<Battalion>().IsCollided)
+            {
+                Vector3 waypoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
+                Vector3 waypointWorld = Camera.main.ScreenToWorldPoint(waypoint);
+                waypointWorld.z = 0.0F;
+                //_handledObject.GetComponent<Battalion>().Waypoints.Add(waypointWorld + _deltaOfClickFromObject);
+                _handledObject.GetComponent<Battalion>().AddWaypoint(waypointWorld + _deltaOfClickFromObject);
+            }
         }
 
         // mouse release

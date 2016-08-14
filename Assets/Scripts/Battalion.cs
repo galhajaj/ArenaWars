@@ -27,6 +27,10 @@ public class Battalion : MonoBehaviour
     public bool IsCollided = false;
     public GameObject FrayObject;
 
+    public Sprite InfantrySprite;
+    public Sprite KnightsSprite;
+    public Sprite PikesSprite;
+
     private float _speed = 0.0F;
 
     private List<Vector3> _waypoints = new List<Vector3>();
@@ -37,6 +41,8 @@ public class Battalion : MonoBehaviour
     private GameObject _prey = null;
 
     readonly Color PURPLE_COLOR = new Color(1.0F, 0.0F, 1.0F);
+    readonly Color BLUE_COLOR   = new Color(0.4F, 0.4F, 1.0F);
+    readonly Color RED_COLOR    = new Color(1.0F, 0.3F, 0.3F);
 
     // =============================================================================================================== //
 	void Start () 
@@ -49,6 +55,7 @@ public class Battalion : MonoBehaviour
         updateSize();
         updateColor();
         updateSpeed();
+        updateSprite();
 
         updateFindPrey();
         updateLostPrey();
@@ -88,6 +95,7 @@ public class Battalion : MonoBehaviour
         transform.position = new Vector3(mySign * 10000.0F, mySign * 10000.0F);
         other.transform.position = new Vector3(otherSign * 10000.0F, otherSign * 10000.0F);
 
+        IsCollided = true;
         other.gameObject.GetComponent<Battalion>().IsCollided = true;
 
         this.ClearWaypoints();
@@ -98,20 +106,20 @@ public class Battalion : MonoBehaviour
     {
         // number of units is between 250 to 1000
         int units = NumberOfUnits;
-        if (units < 100)
-            units = 100;
+        if (units < 200)
+            units = 200;
         /*if (units > 1000)
             units = 1000;*/
-        float scale = units / 1000.0F;
+        float scale = units / 1000.0F / 1.5F;
         transform.localScale = new Vector3(scale, scale, scale);
     }
     // =============================================================================================================== //
     private void updateColor()
     {
         if (Aligment == ForceAligment.FRIENDLY)
-            this.GetComponent<SpriteRenderer>().color = Color.blue;
+            this.GetComponent<SpriteRenderer>().color = BLUE_COLOR;//Color.blue;
         else if (Aligment == ForceAligment.OPPOSING)
-            this.GetComponent<SpriteRenderer>().color = Color.red;
+            this.GetComponent<SpriteRenderer>().color = RED_COLOR;//Color.red;
         else
             this.GetComponent<SpriteRenderer>().color = PURPLE_COLOR;
     }
@@ -119,7 +127,28 @@ public class Battalion : MonoBehaviour
     private void updateSpeed()
     {
         // TODO: in future make that 1000 will be 0.2 and 100 will be 0.8
-        _speed = 200.0F / NumberOfUnits;
+        if (Type == ForceType.INFANTRY)
+        {
+            _speed = 0.6F - (NumberOfUnits - 100.0F) / 9000.0F;
+        }
+        else if (Type == ForceType.KNIGHTS)
+        {
+            _speed = 0.8F - (NumberOfUnits - 100.0F) / 9000.0F;
+        }
+        else if (Type == ForceType.PIKES)
+        {
+            _speed = 0.5F - (NumberOfUnits - 100.0F) / 9000.0F;
+        }
+    }
+    // =============================================================================================================== //
+    private void updateSprite()
+    {
+        if (Type == ForceType.INFANTRY)
+            this.GetComponent<SpriteRenderer>().sprite = InfantrySprite;
+        else if (Type == ForceType.KNIGHTS)
+            this.GetComponent<SpriteRenderer>().sprite = KnightsSprite;
+        else if (Type == ForceType.PIKES)
+            this.GetComponent<SpriteRenderer>().sprite = PikesSprite;
     }
     // =============================================================================================================== //
     private void updateFindPrey()

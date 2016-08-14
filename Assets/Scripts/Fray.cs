@@ -34,26 +34,52 @@ public class Fray : MonoBehaviour
 
         // number of units is between 250 to 1000
         int units = _numberOfUnits;
-        if (units < 100)
-            units = 100;
+        if (units < 200)
+            units = 200;
         /*if (units > 1000)
             units = 1000;*/
-        float scale = units / 1000.0F;
+        float scale = units / 1000.0F / 1.5F;
         transform.localScale = new Vector3(scale, scale, scale);
     }
     // =============================================================================================================== //
     private void updateBattle()
     {
-        int rand = Random.Range(0, 3);
-        if (rand == 0)
-            _rival1Script.NumberOfUnits--;
-        else if (rand == 1)
-            _rival2Script.NumberOfUnits--;
+        if (_rival1Script.Type == _rival2Script.Type)
+        {
+            int rand = Random.Range(0, 3);
+            if (rand == 0)
+                _rival1Script.NumberOfUnits--;
+            else if (rand == 1)
+                _rival2Script.NumberOfUnits--;
+        }
+        else if (
+            (_rival1Script.Type == ForceType.KNIGHTS && _rival2Script.Type == ForceType.INFANTRY) || 
+            (_rival1Script.Type == ForceType.INFANTRY && _rival2Script.Type == ForceType.PIKES) ||
+            (_rival1Script.Type == ForceType.PIKES && _rival2Script.Type == ForceType.KNIGHTS))
+        {
+            int rand = Random.Range(0, 4);
+            if (rand >= 0 && rand <= 2)
+                _rival2Script.NumberOfUnits--;
+            else
+                _rival1Script.NumberOfUnits--;
+        }
+        else if (
+            (_rival2Script.Type == ForceType.KNIGHTS && _rival1Script.Type == ForceType.INFANTRY) || 
+            (_rival2Script.Type == ForceType.INFANTRY && _rival1Script.Type == ForceType.PIKES) ||
+            (_rival2Script.Type == ForceType.PIKES && _rival1Script.Type == ForceType.KNIGHTS))
+        {
+            int rand = Random.Range(0, 4);
+            if (rand >= 0 && rand <= 2)
+                _rival1Script.NumberOfUnits--;
+            else
+                _rival2Script.NumberOfUnits--;
+        }
 
         if (_rival1Script.NumberOfUnits <= 0)
         {
             _rival2.transform.position = this.transform.position;
             _rival2Script.IsCollided = false;
+            Destroy(_rival1);
             Destroy(this.gameObject);
         }
 
@@ -61,6 +87,7 @@ public class Fray : MonoBehaviour
         {
             _rival1.transform.position = this.transform.position;
             _rival1Script.IsCollided = false;
+            Destroy(_rival2);
             Destroy(this.gameObject);
         }
     }
